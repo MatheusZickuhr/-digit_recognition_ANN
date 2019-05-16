@@ -5,12 +5,26 @@ const size = 16
 let reset_btn;
 let guess_btn;
 
+let model = null
+
+let div ;
+
+async function load_model() {
+
+    model = await tf.loadLayersModel('model/model.json');
+
+}
+
+load_model()
+
 function setup() {
     createCanvas(400, 400);
 
-    for (let i = 0; i < width; i += size) {
-        for (let j = 0; j < height; j += size) {
-            rects.push(new Rect(i, j, size, size))
+    div = createDiv()
+
+    for (let i = 0; i < width; i += width / size) {
+        for (let j = 0; j < height; j += height / size) {
+            rects.push(new Rect(i, j, width / size, height / size))
         }
     }
 
@@ -22,11 +36,27 @@ function setup() {
         for (r of rects) {
             r.painted = false
         }
+        div.html('')
     })
 
     guess_btn.mousePressed(() => {
+        const result = []
+        let index = 0
+        for (let i = 0; i < size; i++) {
+            result[i] = []
+            for (let j = 0; j < size; j++) {
+                result[i][j] = rects[index].painted ? 1 : 0
+                index++
+            }
+        }
 
-        console.log('classificado!')
+        let preds = model.predict(tf.tensor([result], [1, 16, 16]))
+
+        preds.print()
+
+        console.log(argmax(preds.dataSync()))
+
+        div.html('Numero desenhado: ' + argmax(preds.dataSync()))
     })
 }
 
@@ -43,4 +73,17 @@ function mouseDragged() {
         if (r.is_overlapping(mouseX, mouseY))
             r.painted = true
     }
+}
+
+
+function argmax(arr) {
+    let max = -1
+    let val = 0
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] > val) {
+            val = arr[i]
+            max = i
+        }
+    }
+    return max
 }

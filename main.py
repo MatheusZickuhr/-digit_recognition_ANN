@@ -1,8 +1,8 @@
 import read_instance as ri
 import tensorflow as tf
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
-
+import tensorflowjs as tfjs
 
 if __name__ == '__main__':
     mnist = tf.keras.datasets.mnist
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # x_test = tf.keras.utils.normalize(x_test, axis=1)
 
     model = tf.keras.models.Sequential()
-    model.add(tf.keras.layers.Flatten())
+    model.add(tf.keras.layers.Flatten(input_shape=(16, 16)))
     model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
     model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
     model.add(tf.keras.layers.Dense(10, activation=tf.nn.softmax))
@@ -31,6 +31,9 @@ if __name__ == '__main__':
 
     print(np.argmax(predictions[1]))
 
-    plt.imshow(x_test[1])
-    plt.show()
+    # plt.imshow(x_test[1])
+    # plt.show()
 
+    print(x_test)
+
+    tfjs.converters.save_keras_model(model, 'app/model')
